@@ -15,3 +15,6 @@ docker exec --interactive --tty kafka /opt/bitnami/kafka/bin/kafka-console-consu
 docker exec --interactive --tty kafka /opt/bitnami/kafka/bin/kafka-console-producer.sh --bootstrap-server kafka:9092 --topic quickstart
 ```
 
+```bash
+
+```
