@@ -26,3 +26,11 @@ kafka-console-consumer.sh --consumer.config /opt/bitnami/kafka/config/consumer.p
 kafka-console-producer.sh --producer.config /opt/bitnami/kafka/config/producer.properties --bootstrap-server kafka:9092 --topic test
 kafka-console-consumer.sh --consumer.config /opt/bitnami/kafka/config/consumer.properties --bootstrap-server kafka:9092 --topic test --from-beginning
 ```
+
+## Security
+
+```bash
+kafka-console-producer.sh --bootstrap-server kafka:9092 --topic test --producer.config /opt/bitnami/kafka/config/producer.properties
+
+kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic test --consumer.config /opt/bitnami/kafka/config/consumer.properties
+```
