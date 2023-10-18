@@ -15,6 +15,14 @@ docker exec --interactive --tty kafka /opt/bitnami/kafka/bin/kafka-console-consu
 docker exec --interactive --tty kafka /opt/bitnami/kafka/bin/kafka-console-producer.sh --bootstrap-server kafka:9092 --topic quickstart
 ```
 
-```bash
+## Accessing Apache Kafka with internal and external clients
 
+```bash
+# Producer and consumer using external client
+kafka-console-producer.sh --producer.config /opt/bitnami/kafka/config/producer.properties --bootstrap-server 172.24.20.93:9094 --topic test
+kafka-console-consumer.sh --consumer.config /opt/bitnami/kafka/config/consumer.properties --bootstrap-server 172.24.20.93:9094 --topic test --from-beginning
+
+# Producer and consumer using internal client
+kafka-console-producer.sh --producer.config /opt/bitnami/kafka/config/producer.properties --bootstrap-server kafka:9092 --topic test
+kafka-console-consumer.sh --consumer.config /opt/bitnami/kafka/config/consumer.properties --bootstrap-server kafka:9092 --topic test --from-beginning
 ```
