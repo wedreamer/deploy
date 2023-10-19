@@ -12,6 +12,20 @@ KEYSTORE_SIGN_REQUEST="cert-file"
 KEYSTORE_SIGN_REQUEST_SRL="ca-cert.srl"
 KEYSTORE_SIGNED_CERT="cert-signed"
 
+# 新增的 PEM 文件名
+PEM_PUBLIC_KEY_FILENAME="public.pem"
+PEM_PRIVATE_KEY_FILENAME="private.pem"
+PEM_CERTIFICATE_FILENAME="certificate.pem"
+
+# 清空 目录
+rm -rf $KEYSTORE_WORKING_DIRECTORY
+rm -rf $TRUSTSTORE_WORKING_DIRECTORY
+# 清空中间文件
+rm -rf $CA_CERT_FILE
+rm -rf $KEYSTORE_SIGN_REQUEST
+rm -rf $KEYSTORE_SIGN_REQUEST_SRL
+rm -rf $KEYSTORE_SIGNED_CERT
+
 function file_exists_and_exit() {
   echo "'$1' cannot exist. Move or delete it before"
   echo "re-running this script."
@@ -187,6 +201,47 @@ echo
 echo "You will be prompted for the keystore's password."
 keytool -keystore $KEYSTORE_WORKING_DIRECTORY/$KEYSTORE_FILENAME -alias localhost -import \
   -file $KEYSTORE_SIGNED_CERT
+
+# 你的 keystore 和 truststore 的路径
+KEYSTORE_PATH=$KEYSTORE_WORKING_DIRECTORY/$KEYSTORE_FILENAME
+TRUSTSTORE_PATH=$TRUSTSTORE_WORKING_DIRECTORY/$DEFAULT_TRUSTSTORE_FILENAME
+
+# 开始时读取 STOREPASS 的值
+echo "请输入 STOREPASS："
+read -s STOREPASS
+
+echo "开始转换 keystore..."
+keytool -importkeystore \
+        -srckeystore $KEYSTORE_PATH \
+        -destkeystore keystore.p12 \
+        -deststoretype PKCS12 \
+        -srcstorepass $STOREPASS \
+        -deststorepass $STOREPASS
+echo "keystore 转换完成。"
+
+echo "开始导出私钥..."
+openssl pkcs12 -in keystore.p12 -nocerts -nodes \
+        -out $KEYSTORE_WORKING_DIRECTORY/key.pem -passin pass:$STOREPASS
+echo "私钥导出完成。"
+
+echo "开始导出公钥..."
+openssl pkcs12 -in keystore.p12 -nokeys \
+        -out $KEYSTORE_WORKING_DIRECTORY/cert.pem -passin pass:$STOREPASS
+echo "公钥导出完成。"
+
+echo "开始转换 truststore..."
+keytool -importkeystore \
+        -srckeystore $TRUSTSTORE_PATH \
+        -destkeystore truststore.p12 \
+        -deststoretype PKCS12 \
+        -srcstorepass $STOREPASS \
+        -deststorepass $STOREPASS
+echo "truststore 转换完成。"
+
+echo "开始导出证书..."
+openssl pkcs12 -in truststore.p12 -nokeys \
+        -out $TRUSTSTORE_WORKING_DIRECTORY/CARoot.pem -passin pass:$STOREPASS
+echo "证书导出完成。"
 
 echo
 echo "All done!"
